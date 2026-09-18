@@ -1,259 +1,680 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Proof Sheet — Photo Print Layouts</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PhotoSheet — print every photo whole</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style id="pageStyle"></style>
 <style>
+  *{box-sizing:border-box;margin:0;padding:0}
   :root{
-    --bg:#17130f;
-    --panel:#141110;
-    --paper:#EDE7D9;
-    --ink:#211D17;
-    --paper-dim:#8f8874;
-    --safelight:#B8241B;
-    --safelight-dim:rgba(184,36,27,.16);
-    --fixer:#4C7A67;
-    --line:#332c22;
-    --font-display:'Space Grotesk', system-ui, sans-serif;
-    --font-mono:'JetBrains Mono', ui-monospace, monospace;
-    --font-body:'Inter', system-ui, sans-serif;
+    --paper:#F2EEE4; --ink:#1D1A13; --line:rgba(29,26,19,.13);
+    --panel:#211D15; --panel-deep:#181510; --panel-line:rgba(242,236,221,.11);
+    --cream:#F2ECDD; --cream-70:rgba(242,236,221,.68); --cream-45:rgba(242,236,221,.42);
+    --accent:#E14B1F; --accent-hi:#FF7A4A;
+    --sheet:#FFFDF8;
   }
-  *{ box-sizing:border-box; }
-  body{ margin:0; background:var(--bg); color:var(--paper); font-family:var(--font-body); }
-  *:focus-visible{ outline:2px solid var(--safelight); outline-offset:2px; }
-  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; } }
+  html,body{height:100%}
+  body{font-family:'Space Grotesk',Georgia,sans-serif;font-size:14px;background:var(--paper);color:var(--ink);overflow:hidden}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-  .stage{ display:grid; grid-template-columns:300px 1fr; min-height:100vh; }
-  @media (max-width:820px){ .stage{ grid-template-columns:1fr; } .controls{ order:2; border-right:none; border-top:1px solid var(--line);} .light-table{ order:1; } }
+  #app{display:grid;grid-template-columns:342px 1fr;height:100vh}
 
-  .controls{ background:var(--panel); padding:24px 20px; border-right:1px solid var(--line); display:flex; flex-direction:column; gap:20px; }
-  .brand{ display:flex; gap:10px; align-items:center; }
-  .brand-mark{ font-family:var(--font-mono); font-size:22px; color:var(--safelight); }
-  .brand h1{ font-family:var(--font-display); font-size:19px; font-weight:700; margin:0; }
-  .brand p{ font-family:var(--font-mono); font-size:10px; color:var(--paper-dim); margin:2px 0 0; text-transform:uppercase; letter-spacing:.08em; }
+  /* ============ control panel ============ */
+  #panel{background:var(--panel);color:var(--cream);overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(242,236,221,.18) transparent}
+  #panel::-webkit-scrollbar{width:8px}
+  #panel::-webkit-scrollbar-thumb{background:rgba(242,236,221,.16);border-radius:99px}
 
-  .load-btn{ display:flex; align-items:center; justify-content:center; gap:8px; background:var(--safelight); color:#fff; font-family:var(--font-display); font-weight:700; font-size:14px; padding:13px; border-radius:3px; cursor:pointer; transition:background .15s; }
-  .load-btn:hover{ background:#9c1e17; }
+  .brand{display:flex;gap:13px;align-items:center;padding:22px 22px 18px;border-bottom:1px solid var(--panel-line)}
+  .stamp{width:40px;height:40px;flex:none;background:var(--accent);border-radius:7px;display:grid;place-items:center;transform:rotate(-4deg);box-shadow:0 3px 0 rgba(0,0,0,.28)}
+  .stamp svg{width:21px;height:21px;stroke:#FFF6EC;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .brand h1{font-family:'Fraunces',Georgia,serif;font-size:21px;font-weight:600;line-height:1}
+  .brand p{font-size:11px;color:var(--cream-45);margin-top:5px;letter-spacing:.02em}
 
-  .thumbs{ display:flex; flex-wrap:wrap; gap:6px; max-height:150px; overflow-y:auto; }
-  .thumb{ position:relative; width:46px; height:46px; border-radius:2px; overflow:hidden; border:1px solid var(--line); }
-  .thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .thumb button{ position:absolute; top:0; right:0; background:rgba(0,0,0,.7); color:#fff; border:none; width:16px; height:16px; font-size:11px; line-height:1; cursor:pointer; }
+  #dropzone{margin:16px 22px 0;border:1.5px dashed rgba(242,236,221,.26);border-radius:10px;padding:16px 12px 14px;text-align:center;cursor:pointer;background:rgba(242,236,221,.03);transition:border-color .18s,background .18s}
+  #dropzone svg{width:22px;height:22px;stroke:var(--cream-70);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin:0 auto 7px}
+  #dropzone strong{display:block;font-size:13px;font-weight:600}
+  #dropzone span{display:block;font-size:11px;color:var(--cream-45);margin-top:3px}
+  #dropzone:hover,#dropzone.on{border-color:var(--accent);background:rgba(225,75,31,.09)}
 
-  .section h2{ font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--paper-dim); margin:0 0 10px; }
+  .thumbs-head{display:flex;justify-content:space-between;align-items:baseline;padding:14px 22px 0}
+  .thumbs-head span{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--cream-45)}
+  #clearAll{color:var(--accent-hi);font-size:11px}
+  #clearAll:hover{text-decoration:underline}
 
-  .layout-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
-  .layout-btn{ background:#1e1a15; border:1px solid var(--line); border-radius:3px; padding:8px 4px; display:flex; flex-direction:column; align-items:center; gap:6px; color:var(--paper-dim); font-family:var(--font-mono); font-size:11px; cursor:pointer; }
-  .layout-btn.active{ border-color:var(--safelight); color:var(--paper); background:var(--safelight-dim); }
-  .mini{ width:24px; height:18px; display:grid; gap:2px; color:var(--paper-dim); }
-  .layout-btn.active .mini{ color:var(--safelight); }
-  .mini .cell{ background:currentColor; opacity:.6; border-radius:1px; }
-  .mini.g1{ grid-template-columns:1fr; }
-  .mini.g2{ grid-template-columns:1fr; grid-template-rows:1fr 1fr; }
-  .mini.g4{ grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; }
-  .mini.g6{ grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr 1fr; }
-  .mini.g9{ grid-template-columns:1fr 1fr 1fr; grid-template-rows:1fr 1fr 1fr; }
+  #thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:10px 22px 6px}
+  .thumb{position:relative;aspect-ratio:1;border-radius:6px;overflow:hidden;background:var(--panel-deep);border:1px solid var(--panel-line);cursor:grab}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+  .thumb .bar{position:absolute;left:0;right:0;bottom:0;display:flex;background:rgba(18,15,10,.85);opacity:0;transition:opacity .15s}
+  .thumb:hover .bar{opacity:1}
+  .thumb .bar button{flex:1;height:23px;display:grid;place-items:center;color:var(--cream)}
+  .thumb .bar button:hover{color:var(--accent-hi)}
+  .thumb .bar svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .thumb .n{position:absolute;top:3px;left:4px;font-size:9px;color:#fff;background:rgba(18,15,10,.7);border-radius:3px;padding:1px 4px}
+  .thumb.dragging{opacity:.35}
+  .thumb.over{outline:2px solid var(--accent);outline-offset:-2px}
+  .thumb.flash{outline:2px solid var(--accent);outline-offset:1px}
+  .thumbs-empty{grid-column:1/-1;font-size:11px;color:var(--cream-45);line-height:1.6;padding:2px 0 8px}
 
-  .toggle{ display:flex; border:1px solid var(--line); border-radius:3px; overflow:hidden; }
-  .toggle button{ flex:1; background:#1e1a15; color:var(--paper-dim); border:none; padding:9px; font-family:var(--font-body); font-size:13px; cursor:pointer; }
-  .toggle button.active{ background:var(--safelight); color:#fff; }
+  .sec{padding:16px 22px 18px;border-bottom:1px solid var(--panel-line)}
+  .sec-t{display:flex;align-items:baseline;gap:8px;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--cream-45);margin-bottom:12px}
+  .sec-t em{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:12px;color:var(--accent);letter-spacing:0}
 
-  .summary{ font-family:var(--font-mono); font-size:12px; color:var(--paper-dim); border-top:1px solid var(--line); padding-top:14px; }
-  .print-btn{ background:var(--fixer); color:#fff; font-family:var(--font-display); font-weight:700; font-size:15px; padding:14px; border:none; border-radius:3px; cursor:pointer; }
-  .print-btn:disabled{ opacity:.4; cursor:not-allowed; }
-  .print-btn:hover:not(:disabled){ background:#3d6353; }
-  .hint{ font-size:11px; color:var(--paper-dim); line-height:1.5; margin:0; }
+  .seg{display:flex;background:var(--panel-deep);border:1px solid var(--panel-line);border-radius:8px;padding:3px;gap:3px}
+  .seg button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--cream-70);padding:7px 4px;border-radius:6px;transition:color .15s,background .15s}
+  .seg button:hover{color:var(--cream)}
+  .seg button.on{background:var(--cream);color:var(--ink);font-weight:600}
+  .seg svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-  .light-table{ background:#0c0a08; padding:28px; overflow:auto; }
-  .sheet-nav{ display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
-  .tab{ font-family:var(--font-mono); font-size:11px; background:#1e1a15; color:var(--paper-dim); border:1px solid var(--line); padding:6px 12px; border-radius:2px; cursor:pointer; }
-  .tab.active{ border-color:var(--safelight); color:var(--paper); }
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{border:1px solid var(--panel-line);background:var(--panel-deep);color:var(--cream-70);border-radius:999px;font-size:12px;padding:5px 13px;transition:all .15s}
+  .chip:hover{color:var(--cream);border-color:rgba(242,236,221,.32)}
+  .chip.on{background:var(--accent);border-color:var(--accent);color:#FFF6EC;font-weight:600}
 
-  .empty-state{ color:var(--paper-dim); font-family:var(--font-mono); font-size:13px; text-align:center; padding:100px 20px; border:1px dashed var(--line); border-radius:4px; }
-  .light-table.drag-over .empty-state{ border-color:var(--safelight); color:var(--paper); }
+  .f-label{font-size:11px;color:var(--cream-45);display:flex;justify-content:space-between;align-items:baseline;margin:12px 0 6px}
+  .f-label output{color:var(--cream);font-weight:500;font-size:11.5px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .row .f-label{margin-top:10px}
 
-  .sheet{ display:none; background:var(--paper); aspect-ratio:8.5/11; width:100%; max-width:600px; margin:0 auto 20px; padding:14px; gap:8px; box-shadow:0 8px 30px rgba(0,0,0,.5); }
-  .sheet.active{ display:grid; }
+  select,.num{width:100%;background:var(--panel-deep);border:1px solid var(--panel-line);color:var(--cream);border-radius:8px;font:inherit;font-size:12.5px;padding:8px 10px;appearance:none;-webkit-appearance:none}
+  select{background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F2ECDD' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:11px;padding-right:28px;cursor:pointer}
+  select:focus,.num:focus,.stepper input:focus{outline:none;border-color:var(--accent)}
 
-  .frame{ position:relative; background:#000; overflow:hidden; border-radius:1px; }
-  .frame img{ width:100%; height:100%; object-fit:cover; display:block; }
-  body.bw-mode .frame img{ filter:grayscale(100%); }
-  .frame-no{ position:absolute; top:3px; left:3px; font-family:var(--font-mono); font-size:9px; color:#fff; background:rgba(0,0,0,.5); padding:1px 4px; border-radius:2px; z-index:2; }
-  .frame .remove{ position:absolute; top:3px; right:3px; background:rgba(0,0,0,.55); color:#fff; border:none; width:16px; height:16px; font-size:11px; cursor:pointer; z-index:2; border-radius:2px; }
+  .stepper{display:flex;align-items:stretch;border:1px solid var(--panel-line);border-radius:8px;background:var(--panel-deep);overflow:hidden}
+  .stepper button{width:28px;color:var(--cream-70);font-size:16px;line-height:1}
+  .stepper button:hover{color:var(--cream);background:rgba(242,236,221,.06)}
+  .stepper input{flex:1;min-width:0;background:none;border:0;color:var(--cream);font:inherit;font-size:12.5px;text-align:center;padding:7px 0}
+  .stepper input::-webkit-outer-spin-button,.stepper input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .stepper input[type=number]{-moz-appearance:textfield;appearance:textfield}
 
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:22px;background:none;cursor:pointer}
+  input[type=range]::-webkit-slider-runnable-track{height:3px;background:rgba(242,236,221,.18);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);border:3px solid var(--panel);margin-top:-5.5px;box-shadow:0 0 0 1px rgba(242,236,221,.28)}
+  input[type=range]::-moz-range-track{height:3px;background:rgba(242,236,221,.18);border-radius:2px}
+  input[type=range]::-moz-range-thumb{width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--panel)}
+
+  .note{font-size:10.5px;color:var(--cream-45);margin-top:8px;line-height:1.55}
+  .note.warn{color:#FF9C74}
+
+  .switch-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}
+  .switch-row .t{font-size:12.5px;font-weight:500}
+  .switch-row .d{font-size:10.5px;color:var(--cream-45);margin-top:2px}
+  .switch{position:relative;width:36px;height:20px;flex:none}
+  .switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+  .switch i{position:absolute;inset:0;border-radius:999px;background:rgba(242,236,221,.14);border:1px solid var(--panel-line);transition:background .18s,border-color .18s;pointer-events:none}
+  .switch i::after{content:'';position:absolute;top:2.5px;left:3px;width:13px;height:13px;border-radius:50%;background:var(--cream);transition:transform .18s}
+  .switch input:checked + i{background:var(--accent);border-color:var(--accent)}
+  .switch input:checked + i::after{transform:translateX(14px);background:#FFF6EC}
+
+  .tip{margin:16px 22px 24px;padding:12px 14px;background:var(--panel-deep);border:1px solid var(--panel-line);border-left:3px solid var(--accent);border-radius:8px;font-size:11px;line-height:1.65;color:var(--cream-70)}
+  .tip strong{color:var(--cream)}
+
+  /* ============ stage ============ */
+  #stage{display:flex;flex-direction:column;height:100vh;min-width:0;overflow:hidden}
+  #stageHead{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:13px 26px;border-bottom:1px solid var(--line);background:var(--paper);flex:none}
+  #stageHead h2{font-family:'Fraunces',Georgia,serif;font-size:19px;font-weight:600}
+  #summaryLine{font-size:11.5px;color:rgba(29,26,19,.55);margin-top:3px;letter-spacing:.02em}
+  #printBtn{display:flex;align-items:center;gap:9px;background:var(--ink);color:var(--cream);border-radius:9px;padding:11px 20px;font-size:13.5px;font-weight:600;transition:background .16s,transform .16s}
+  #printBtn:hover{background:var(--accent);transform:translateY(-1px)}
+  #printBtn:active{transform:none}
+  #printBtn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+  #pages{flex:1;overflow-y:auto;padding:30px 26px 60px;display:flex;flex-direction:column;align-items:center;gap:32px;
+    background-image:radial-gradient(rgba(29,26,19,.08) 1px,transparent 1px);background-size:18px 18px}
+  #pages::-webkit-scrollbar{width:10px}
+  #pages::-webkit-scrollbar-thumb{background:rgba(29,26,19,.18);border-radius:99px;border:3px solid var(--paper)}
+
+  .hint{display:flex;gap:11px;align-items:flex-start;background:var(--sheet);border:1px solid var(--line);border-radius:10px;padding:13px 16px;max-width:520px;font-size:12px;line-height:1.6;color:rgba(29,26,19,.75);box-shadow:0 1px 2px rgba(29,26,19,.06)}
+  .hint svg{flex:none;width:16px;height:16px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:1px}
+
+  .sheet-unit{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .sheet-wrap{position:relative}
+  .page{position:relative;background:var(--sheet);border-radius:2px;overflow:hidden;user-select:none;transform-origin:top left;
+    box-shadow:0 1px 2px rgba(29,26,19,.15),0 14px 34px rgba(29,26,19,.13)}
+  .page-label{font-size:11px;color:rgba(29,26,19,.5);letter-spacing:.03em}
+  .page-label b{font-weight:600;color:rgba(29,26,19,.75)}
+  .cells{position:absolute;inset:0;display:flex;flex-wrap:wrap;justify-content:center;align-content:center}
+
+  .cell{position:relative;flex:none;background:#fff;animation:pop .26s cubic-bezier(.2,.7,.3,1) both}
+  #pages.static .cell{animation:none}
+  .cell img{display:block}
+  .cell:not(.ghost):hover{outline:2px solid var(--accent);outline-offset:-2px;cursor:pointer}
+  .ghost{border:1px dashed #D8D2C2;background:#FBF8F1}
+  .guides .cell{border:.25mm solid #CBC4B4}
+  @keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+
+  .page-msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20mm;gap:10px;color:#8A8374}
+  .page-msg svg{width:28px;height:28px;stroke:#B5AE9E;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .page-msg p{font-size:12px;line-height:1.7;max-width:120mm}
+
+  #toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);background:var(--ink);color:var(--cream);font-size:12.5px;padding:10px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;z-index:99;box-shadow:0 8px 24px rgba(0,0,0,.24)}
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+
+  @media (max-width:880px){
+    #app{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+    #panel{max-height:46vh}
+    #stage{height:auto}
+  }
+
+  /* ============ print: pages only, at true physical size ============ */
   @media print{
-    body{ background:#fff !important; }
-    .controls, .sheet-nav, .frame .remove, .empty-state{ display:none !important; }
-    .light-table{ background:#fff !important; padding:0; }
-    .stage{ display:block; }
-    .sheet{ display:grid !important; box-shadow:none; margin:0; max-width:none; width:100%; height:100vh; page-break-after:always; }
-    .sheet:last-child{ page-break-after:auto; }
-    .frame-no{ background:transparent; color:#000; }
+    html,body{height:auto;overflow:visible;background:#fff}
+    #app{display:block;height:auto}
+    #panel,#stageHead,.hint,#toast,.page-label{display:none!important}
+    #stage{display:block;height:auto;overflow:visible}
+    #pages{display:block;overflow:visible;padding:0;gap:0;background:none}
+    .sheet-unit{display:block;break-after:page;page-break-after:always}
+    .sheet-unit:last-child{break-after:auto;page-break-after:auto}
+    .sheet-wrap{width:auto!important;height:auto!important}
+    .page{transform:none!important;box-shadow:none;border-radius:0}
+    .cell{animation:none!important}
+    .cell:hover{outline:none}
+    .ghost{display:none!important}
+    img{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   }
 </style>
 </head>
 <body>
-<div class="stage">
-  <aside class="controls">
+
+<div id="app">
+
+  <!-- ===================== control panel ===================== -->
+  <aside id="panel">
     <div class="brand">
-      <span class="brand-mark">◧</span>
+      <div class="stamp">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.9-3.9a2 2 0 0 0-2.8 0L6 19"/></svg>
+      </div>
       <div>
-        <h1>Proof Sheet</h1>
-        <p>Print layouts, no cm required</p>
+        <h1>PhotoSheet</h1>
+        <p>Every photo printed whole — never cropped.</p>
       </div>
     </div>
 
-    <label class="load-btn">
-      Load photos
-      <input type="file" id="fileInput" accept="image/*" multiple hidden>
-    </label>
+    <div id="dropzone" tabindex="0" role="button" aria-label="Add photos">
+      <svg viewBox="0 0 24 24"><path d="M12 15V4"/><path d="m7 8 5-4 5 4"/><path d="M4 20h16"/></svg>
+      <strong>Add photos</strong>
+      <span>drop files, paste (Ctrl+V), or click to browse</span>
+    </div>
 
-    <div class="thumbs" id="thumbs"></div>
+    <div class="thumbs-head" id="thumbsHead" hidden>
+      <span id="thumbsCount">0 photos</span>
+      <button type="button" id="clearAll">Remove all</button>
+    </div>
+    <div id="thumbs"></div>
 
-    <div class="section">
-      <h2>Photos per sheet</h2>
-      <div class="layout-grid" id="layoutPicker">
-        <button class="layout-btn" data-count="1"><span class="mini g1"><span class="cell"></span></span>1</button>
-        <button class="layout-btn" data-count="2"><span class="mini g2"><span class="cell"></span><span class="cell"></span></span>2</button>
-        <button class="layout-btn active" data-count="4"><span class="mini g4"><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span></span>4</button>
-        <button class="layout-btn" data-count="6"><span class="mini g6"><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span></span>6</button>
-        <button class="layout-btn" data-count="9"><span class="mini g9"><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span></span>9</button>
+    <div class="sec">
+      <div class="sec-t"><em>01</em>Layout</div>
+      <div class="seg" id="modeSeg">
+        <button type="button" data-v="grid" class="on">Photos per page</button>
+        <button type="button" data-v="exact">Exact photo size</button>
+      </div>
+
+      <div id="gridOpts">
+        <div class="f-label">Photos per sheet</div>
+        <div class="chips" id="presetChips">
+          <button type="button" class="chip" data-n="1">1</button>
+          <button type="button" class="chip" data-n="2">2</button>
+          <button type="button" class="chip" data-n="3">3</button>
+          <button type="button" class="chip on" data-n="4">4</button>
+          <button type="button" class="chip" data-n="6">6</button>
+          <button type="button" class="chip" data-n="8">8</button>
+          <button type="button" class="chip" data-n="9">9</button>
+          <button type="button" class="chip" data-n="12">12</button>
+          <button type="button" class="chip" data-n="custom">Custom…</button>
+        </div>
+        <div class="row" id="customGrid" hidden>
+          <div>
+            <div class="f-label">Columns</div>
+            <div class="stepper">
+              <button type="button" data-step="-1" aria-label="fewer columns">−</button>
+              <input id="colsN" type="number" min="1" max="10" value="2">
+              <button type="button" data-step="1" aria-label="more columns">+</button>
+            </div>
+          </div>
+          <div>
+            <div class="f-label">Rows</div>
+            <div class="stepper">
+              <button type="button" data-step="-1" aria-label="fewer rows">−</button>
+              <input id="rowsN" type="number" min="1" max="12" value="2">
+              <button type="button" data-step="1" aria-label="more rows">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="exactOpts" hidden>
+        <div class="f-label">Photo size</div>
+        <select id="sizeSel">
+          <option value="pass">Passport — 35 × 45 mm</option>
+          <option value="s2535">Wallet — 2.5 × 3.5 in</option>
+          <option value="s355">Classic — 3.5 × 5 in</option>
+          <option value="s46" selected>Standard — 4 × 6 in</option>
+          <option value="s57">Large — 5 × 7 in</option>
+          <option value="s810">Poster — 8 × 10 in</option>
+          <option value="custom">Custom size…</option>
+        </select>
+        <div class="row" id="customSize" hidden>
+          <div>
+            <div class="f-label">Width (mm)</div>
+            <input id="cw" class="num" type="number" min="10" max="420" step="0.5" value="89">
+          </div>
+          <div>
+            <div class="f-label">Height (mm)</div>
+            <input id="chh" class="num" type="number" min="10" max="420" step="0.5" value="127">
+          </div>
+        </div>
+        <div class="f-label">Tile orientation</div>
+        <div class="seg" id="tileSeg">
+          <button type="button" data-v="portrait" class="on"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="1.5"/></svg>Portrait</button>
+          <button type="button" data-v="landscape"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="1.5"/></svg>Landscape</button>
+        </div>
       </div>
     </div>
 
-    <div class="section">
-      <h2>Color</h2>
-      <div class="toggle" id="colorToggle">
-        <button data-mode="color" class="active">Color</button>
-        <button data-mode="bw">B&amp;W</button>
+    <div class="sec">
+      <div class="sec-t"><em>02</em>Paper</div>
+      <select id="paperSel">
+        <option value="a4" selected>A4 — 210 × 297 mm</option>
+        <option value="letter">Letter — 8.5 × 11 in</option>
+        <option value="legal">Legal — 8.5 × 14 in</option>
+        <option value="a5">A5 — 148 × 210 mm</option>
+        <option value="a3">A3 — 297 × 420 mm</option>
+        <option value="p46">Photo paper 4 × 6 in</option>
+      </select>
+      <div class="f-label">Orientation</div>
+      <div class="seg" id="orientSeg">
+        <button type="button" data-v="portrait" class="on"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="1.5"/></svg>Portrait</button>
+        <button type="button" data-v="landscape"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="1.5"/></svg>Landscape</button>
       </div>
     </div>
 
-    <div class="summary" id="summary">0 photos • 0 sheets</div>
-    <button class="print-btn" id="printBtn" disabled>Print</button>
-    <p class="hint">If B&amp;W doesn't come through on paper, also set your printer's own properties to grayscale / black ink only — that's the guaranteed fallback.</p>
+    <div class="sec">
+      <div class="sec-t"><em>03</em>Fit &amp; spacing</div>
+      <div class="seg" id="fitSeg">
+        <button type="button" data-v="contain" class="on">Whole photo</button>
+        <button type="button" data-v="cover">Fill &amp; crop</button>
+      </div>
+      <p class="note" id="fitNote"></p>
+      <div class="f-label">Page margin <output id="marginOut">10 mm</output></div>
+      <input type="range" id="marginR" min="0" max="25" step="1" value="10">
+      <div class="f-label">Gap between photos <output id="gapOut">4 mm</output></div>
+      <input type="range" id="gapR" min="0" max="15" step="1" value="4">
+      <div class="switch-row">
+        <div>
+          <div class="t">Cut guides</div>
+          <div class="d">thin trim lines around each photo</div>
+        </div>
+        <label class="switch"><input type="checkbox" id="guidesT"><i></i></label>
+      </div>
+    </div>
+
+    <div class="tip">
+      <strong>Print checklist —</strong> in the browser's print dialog pick the same paper
+      size, set <strong>Margins: None</strong>, <strong>Scale: 100%</strong>, and turn off
+      headers &amp; footers. That keeps every photo whole and its size exact.
+    </div>
   </aside>
 
-  <main class="light-table" id="lightTable">
-    <div class="sheet-nav" id="sheetNav"></div>
-    <div class="sheets" id="sheets">
-      <div class="empty-state">Load photos, or drag them in here from your desktop</div>
-    </div>
+  <!-- ===================== stage ===================== -->
+  <main id="stage">
+    <header id="stageHead">
+      <div>
+        <h2>Sheet preview</h2>
+        <p id="summaryLine"></p>
+      </div>
+      <button type="button" id="printBtn">
+        <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7"/></svg>
+        Print sheets
+      </button>
+    </header>
+    <div id="pages"></div>
   </main>
+
 </div>
 
+<input type="file" id="fileInput" multiple accept="image/*" hidden>
+<div id="toast" role="status"></div>
+
 <script>
-  const LAYOUTS = {
-    1:{cols:1, rows:1}, 2:{cols:1, rows:2}, 4:{cols:2, rows:2}, 6:{cols:2, rows:3}, 9:{cols:3, rows:3}
+  /* ---------- helpers ---------- */
+  const $  = (s, el = document) => el.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const r2 = v => Math.round(v * 100) / 100;
+  const f2 = v => Math.floor(v * 100) / 100;   // floor to 0.01mm so flex rows never wrap early
+
+  const I = {
+    rot : '<svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v5h-5"/></svg>',
+    x   : '<svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+    warn: '<svg viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>',
+    info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>'
   };
-  const state = { photos: [], layout: 4, bw: false, currentSheet: 0 };
 
-  const fileInput = document.getElementById('fileInput');
-  const thumbsEl = document.getElementById('thumbs');
-  const sheetsEl = document.getElementById('sheets');
-  const navEl = document.getElementById('sheetNav');
-  const summaryEl = document.getElementById('summary');
-  const printBtn = document.getElementById('printBtn');
-  const lightTable = document.getElementById('lightTable');
+  /* ---------- data ---------- */
+  const PAPERS = {
+    a4    : { name:'A4',             w:210,   h:297   },
+    a5    : { name:'A5',             w:148,   h:210   },
+    a3    : { name:'A3',             w:297,   h:420   },
+    letter: { name:'Letter',         w:215.9, h:279.4 },
+    legal : { name:'Legal',          w:215.9, h:355.6 },
+    p46   : { name:'Photo 4 × 6 in', w:101.6, h:152.4 }
+  };
+  const SIZES = {
+    pass : { name:'Passport 35×45 mm', w:35,    h:45    },
+    s2535: { name:'2.5×3.5 in',        w:63.5,  h:88.9  },
+    s355 : { name:'3.5×5 in',          w:88.9,  h:127   },
+    s46  : { name:'4×6 in',            w:101.6, h:152.4 },
+    s57  : { name:'5×7 in',            w:127,   h:177.8 },
+    s810 : { name:'8×10 in',           w:203.2, h:254   }
+  };
+  /* preset count -> [cols, rows] for portrait paper (swapped in landscape) */
+  const PRESETS = { 1:[1,1], 2:[1,2], 3:[2,2], 4:[2,2], 6:[2,3], 8:[2,4], 9:[3,3], 12:[3,4] };
 
-  function handleFiles(fileList){
-    const files = Array.from(fileList).filter(f => f.type.startsWith('image/'));
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = e => {
-        state.photos.push({ id: Math.random().toString(36).slice(2), url: e.target.result });
-        renderAll();
-      };
-      reader.readAsDataURL(file);
-    });
+  let uid = 0, lastSig = '';
+  const state = {
+    images: [], paper:'a4', orientation:'portrait', mode:'grid',
+    preset:4, custom:false, cols:2, rows:2,
+    size:'s46', sizeW:89, sizeH:127, tileOri:'portrait',
+    fit:'contain', margin:10, gap:4, guides:false
+  };
+
+  /* ---------- geometry ---------- */
+  function layout(){
+    const p  = PAPERS[state.paper];
+    const [PW, PH] = state.orientation === 'landscape' ? [p.h, p.w] : [p.w, p.h];
+    const m = state.margin, g = state.gap;
+    const L = { PW, PH, m, g, cols:0, rows:0, cw:0, ch:0, tw:0, th:0, perPage:0, perRow:0, err:null };
+
+    if (state.mode === 'grid'){
+      let cols, rows, perPage;
+      if (state.custom){ cols = state.cols; rows = state.rows; perPage = cols * rows; }
+      else {
+        [cols, rows] = PRESETS[state.preset] || [2,2];
+        perPage = state.preset;
+        if (state.orientation === 'landscape') [cols, rows] = [rows, cols];
+      }
+      const cw = f2((PW - 2*m - (cols-1)*g) / cols);
+      const ch = f2((PH - 2*m - (rows-1)*g) / rows);
+      if (cw < 3 || ch < 3){ L.err = 'grid'; return L; }
+      Object.assign(L, { cols, rows, cw, ch, perPage });
+    } else {
+      let [tw, th] = state.size === 'custom'
+        ? [state.sizeW, state.sizeH]
+        : [SIZES[state.size].w, SIZES[state.size].h];
+      if (state.tileOri === 'landscape') [tw, th] = [th, tw];
+      L.tw = tw; L.th = th;
+      const perRow = Math.floor((PW - 2*m + g) / (tw + g));
+      const perCol = Math.floor((PH - 2*m + g) / (th + g));
+      if (perRow < 1 || perCol < 1){ L.err = 'exact'; return L; }
+      Object.assign(L, { perRow, perPage: perRow * perCol });
+    }
+    return L;
   }
 
-  function removePhoto(id){
-    state.photos = state.photos.filter(p => p.id !== id);
-    const total = Math.max(1, Math.ceil(state.photos.length / state.layout));
-    if(state.currentSheet > total - 1) state.currentSheet = total - 1;
-    renderAll();
+  /* ---------- rendering ---------- */
+  function cellHTML(im, cw, ch, d){
+    const rot = ((im.rot % 360) + 360) % 360;
+    let st;
+    if (rot % 180 === 0){
+      st = `width:100%;height:100%;transform:rotate(${rot}deg)`;
+    } else {
+      /* swapped box + 90° rotation keeps the whole image inside the slot */
+      st = `position:absolute;left:50%;top:50%;width:${ch}mm;height:${cw}mm;transform:translate(-50%,-50%) rotate(${rot}deg)`;
+    }
+    return `<div class="cell" data-id="${im.id}" style="width:${cw}mm;height:${ch}mm;animation-delay:${Math.min(d*22,420)}ms">` +
+           `<img draggable="false" src="${im.src}" alt="" style="object-fit:${state.fit};${st}"></div>`;
+  }
+  const ghostHTML = (cw, ch, d) =>
+    `<div class="cell ghost" style="width:${cw}mm;height:${ch}mm;animation-delay:${Math.min(d*22,420)}ms"></div>`;
+
+  function renderPages(){
+    const L = layout(), p = PAPERS[state.paper];
+    /* the printed page is exactly the sheet size, edge to edge */
+    $('#pageStyle').textContent = `@page{size:${L.PW}mm ${L.PH}mm;margin:0}`;
+    updateSummary(L);
+
+    const pagesEl = $('#pages');
+    const mmToPx = 96 / 25.4;
+    const wpx = L.PW * mmToPx, hpx = L.PH * mmToPx;
+    const scale = Math.min(1, (pagesEl.clientWidth - 64) / wpx) || .5;
+
+    const sig = [state.images.length, state.mode, state.preset, state.custom, state.cols,
+                 state.rows, state.paper, state.orientation, state.size, state.sizeW,
+                 state.sizeH, state.tileOri].join('|');
+    pagesEl.classList.toggle('static', sig === lastSig);
+    lastSig = sig;
+
+    const wrap = (inner, label) => `<div class="sheet-unit">
+      <div class="sheet-wrap" style="width:${(wpx*scale).toFixed(1)}px;height:${(hpx*scale).toFixed(1)}px">
+        <div class="page ${state.guides ? 'guides' : ''}" style="width:${L.PW}mm;height:${L.PH}mm;transform:scale(${scale.toFixed(4)})">
+          <div class="cells" style="padding:${L.m}mm;gap:${L.g}mm">${inner}</div>
+        </div>
+      </div>${label ? `<div class="page-label">${label}</div>` : ''}</div>`;
+
+    let html = '';
+    if (L.err){
+      const msg = L.err === 'exact'
+        ? `A ${r2(L.tw)} × ${r2(L.th)} mm photo doesn't fit on ${p.name} (${state.orientation}) with a ${L.m} mm margin.<br>Try a smaller size, less margin, or bigger paper.`
+        : `This grid doesn't fit on ${p.name} with the current settings.<br>Reduce the columns/rows or margin, or pick bigger paper.`;
+      html = wrap(`<div class="page-msg">${I.warn}<p>${msg}</p></div>`, `<b>Sheet 1</b> · needs attention`);
+    } else {
+      const chunks = [];
+      if (state.images.length){
+        for (let i = 0; i < state.images.length; i += L.perPage) chunks.push(state.images.slice(i, i + L.perPage));
+      } else chunks.push([]);
+
+      const cw = state.mode === 'grid' ? L.cw : L.tw;
+      const ch = state.mode === 'grid' ? L.ch : L.th;
+
+      chunks.forEach((grp, i) => {
+        let cells = '', d = 0;
+        grp.forEach(im => { cells += cellHTML(im, cw, ch, d++); });
+        if (i === chunks.length - 1){                       /* dashed slots for empty space */
+          const capacity = state.mode === 'grid' ? L.cols * L.rows : L.perPage;
+          for (let k = grp.length; k < capacity; k++) cells += ghostHTML(cw, ch, d++);
+        }
+        html += wrap(cells,
+          `<b>Sheet ${i+1}</b> / ${chunks.length} &nbsp;·&nbsp; ${p.name} ${state.orientation} · ${L.PW} × ${L.PH} mm`);
+      });
+    }
+    pagesEl.innerHTML = (state.images.length ? '' : hintHTML()) + html;
   }
 
-  function goToSheet(i){ state.currentSheet = i; renderAll(); }
+  function hintHTML(){
+    return `<div class="hint">${I.info}<div><strong>Your sheet is ready for photos.</strong>
+      The dashed frames show exactly where each photo will print. Add photos on the left —
+      each one is fitted <em>whole</em> into its slot, so nothing is ever cut off.</div></div>`;
+  }
 
-  function chunk(arr, size){
-    const out = [];
-    for(let i=0; i<arr.length; i += size) out.push(arr.slice(i, i+size));
-    return out;
+  function updateSummary(L){
+    const p = PAPERS[state.paper];
+    let mid;
+    if (L.err) mid = 'layout doesn\u2019t fit the paper';
+    else if (state.mode === 'grid') mid = `${L.perPage} per sheet (${L.cols} × ${L.rows} grid)`;
+    else {
+      const nm = state.size === 'custom'
+        ? `${r2(state.sizeW)}×${r2(state.sizeH)} mm` : SIZES[state.size].name;
+      mid = `exact ${nm} · ${L.perPage} per sheet`;
+    }
+    const sheets = L.err ? 1 : Math.max(1, Math.ceil(state.images.length / L.perPage));
+    $('#summaryLine').textContent =
+      `${p.name} · ${state.orientation} · ${mid} · ${state.images.length ? sheets + ' sheet' + (sheets > 1 ? 's' : '') : 'add photos to begin'}`;
   }
 
   function renderThumbs(){
-    thumbsEl.innerHTML = state.photos.map(p => `
-      <div class="thumb"><img src="${p.url}" alt=""><button onclick="removePhoto('${p.id}')" title="Remove">×</button></div>
-    `).join('');
+    const n = state.images.length;
+    $('#thumbsHead').hidden = !n;
+    $('#thumbsCount').textContent = `${n} photo${n === 1 ? '' : 's'}`;
+    $('#thumbs').innerHTML = n ? state.images.map((im, i) => `
+      <div class="thumb" draggable="true" data-i="${i}" data-id="${im.id}" title="${im.name}">
+        <img src="${im.src}" alt="" style="transform:rotate(${im.rot}deg)">
+        <span class="n">${i + 1}</span>
+        <div class="bar">
+          <button type="button" data-act="rot" data-id="${im.id}" title="Rotate 90°">${I.rot}</button>
+          <button type="button" data-act="del" data-id="${im.id}" title="Remove">${I.x}</button>
+        </div>
+      </div>`).join('')
+      : `<p class="thumbs-empty">No photos yet — the sheet on the right previews your layout with empty slots.</p>`;
   }
 
-  function renderSheets(){
-    if(state.photos.length === 0){
-      sheetsEl.innerHTML = '<div class="empty-state">Load photos, or drag them in here from your desktop</div>';
-      return;
+  function render(){ renderThumbs(); renderPages(); }
+
+  /* ---------- toast ---------- */
+  let toastT;
+  function toast(msg){
+    const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  /* ---------- files ---------- */
+  function addFiles(files){
+    let added = 0;
+    for (const f of files){
+      if (!f.type.startsWith('image/')){ toast(`Skipped “${f.name}” — not an image`); continue; }
+      state.images.push({ id:++uid, src:URL.createObjectURL(f), name:f.name, rot:0 });
+      added++;
     }
-    const pages = chunk(state.photos, state.layout);
-    const cfg = LAYOUTS[state.layout];
-    sheetsEl.innerHTML = pages.map((page, i) => `
-      <div class="sheet ${i === state.currentSheet ? 'active' : ''}" style="grid-template-columns:repeat(${cfg.cols},1fr); grid-template-rows:repeat(${cfg.rows},1fr);">
-        ${page.map((p, idx) => `
-          <div class="frame">
-            <span class="frame-no">${String(i*state.layout + idx + 1).padStart(2,'0')}</span>
-            <img src="${p.url}" alt="">
-            <button class="remove" onclick="removePhoto('${p.id}')" title="Remove">×</button>
-          </div>
-        `).join('')}
-      </div>
-    `).join('');
+    if (added){ toast(`${added} photo${added > 1 ? 's' : ''} added`); render(); }
   }
 
-  function renderNav(){
-    const total = Math.ceil(state.photos.length / state.layout) || 0;
-    if(total <= 1){ navEl.innerHTML = ''; return; }
-    navEl.innerHTML = Array.from({length: total}, (_, i) =>
-      `<button class="tab ${i === state.currentSheet ? 'active' : ''}" onclick="goToSheet(${i})">Sheet ${i+1}</button>`
-    ).join('');
+  $('#dropzone').addEventListener('click', () => $('#fileInput').click());
+  $('#dropzone').addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); $('#fileInput').click(); }
+  });
+  $('#fileInput').addEventListener('change', e => { addFiles(e.target.files); e.target.value = ''; });
+  window.addEventListener('paste', e => { if (e.clipboardData?.files?.length) addFiles(e.clipboardData.files); });
+
+  /* drag & drop files anywhere */
+  const hasFiles = e => e.dataTransfer && [...e.dataTransfer.types].includes('Files');
+  let depth = 0;
+  window.addEventListener('dragenter', e => { if (hasFiles(e)){ e.preventDefault(); depth++; $('#dropzone').classList.add('on'); } });
+  window.addEventListener('dragleave', e => { if (hasFiles(e)){ depth = Math.max(0, depth - 1); if (!depth) $('#dropzone').classList.remove('on'); } });
+  window.addEventListener('dragover',  e => { if (hasFiles(e)) e.preventDefault(); });
+  window.addEventListener('drop',      e => { if (!hasFiles(e)) return; e.preventDefault(); depth = 0; $('#dropzone').classList.remove('on'); addFiles(e.dataTransfer.files); });
+
+  /* ---------- thumbnails: rotate / remove / reorder ---------- */
+  $('#thumbs').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const i = state.images.findIndex(x => x.id === +b.dataset.id); if (i < 0) return;
+    if (b.dataset.act === 'rot'){ state.images[i].rot = (state.images[i].rot + 90) % 360; render(); }
+    else { URL.revokeObjectURL(state.images[i].src); state.images.splice(i, 1); render(); toast('Photo removed'); }
+  });
+
+  let dragI = -1;
+  $('#thumbs').addEventListener('dragstart', e => {
+    const t = e.target.closest('.thumb'); if (!t) return;
+    dragI = +t.dataset.i; t.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', dragI);
+  });
+  $('#thumbs').addEventListener('dragend', () => {
+    dragI = -1; $$('#thumbs .thumb').forEach(t => t.classList.remove('dragging', 'over'));
+  });
+  $('#thumbs').addEventListener('dragover', e => {
+    e.preventDefault();
+    const t = e.target.closest('.thumb');
+    $$('#thumbs .thumb').forEach(x => x.classList.remove('over'));
+    if (t && +t.dataset.i !== dragI) t.classList.add('over');
+  });
+  $('#thumbs').addEventListener('drop', e => {
+    e.preventDefault();
+    const t = e.target.closest('.thumb'); if (!t || dragI < 0) return;
+    const [it] = state.images.splice(dragI, 1);
+    state.images.splice(+t.dataset.i, 0, it);
+    render();
+  });
+
+  $('#clearAll').addEventListener('click', () => {
+    state.images.forEach(i => URL.revokeObjectURL(i.src));
+    state.images = []; render(); toast('All photos removed');
+  });
+
+  /* clicking a photo on the sheet points to its thumbnail */
+  $('#pages').addEventListener('click', e => {
+    const c = e.target.closest('.cell:not(.ghost)'); if (!c) return;
+    const t = document.querySelector(`.thumb[data-id="${c.dataset.id}"]`);
+    if (t){ t.scrollIntoView({ block:'nearest', behavior:'smooth' }); t.classList.add('flash'); setTimeout(() => t.classList.remove('flash'), 900); }
+  });
+
+  /* ---------- controls ---------- */
+  function seg(sel, key, cb){
+    $(sel).addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b || b.classList.contains('on')) return;
+      $$(sel + ' button').forEach(x => x.classList.toggle('on', x === b));
+      state[key] = b.dataset.v; cb && cb(); render();
+    });
+  }
+  seg('#modeSeg',  'mode', () => { $('#gridOpts').hidden  = state.mode !== 'grid';
+                                   $('#exactOpts').hidden = state.mode !== 'exact'; });
+  seg('#orientSeg','orientation');
+  seg('#tileSeg',  'tileOri');
+  seg('#fitSeg',   'fit', fitNote);
+
+  function fitNote(){
+    const el = $('#fitNote');
+    if (state.fit === 'contain'){
+      el.classList.remove('warn');
+      el.textContent = 'Every pixel is kept — thin white bands may appear when the photo shape differs from its slot.';
+    } else {
+      el.classList.add('warn');
+      el.textContent = 'Photos are enlarged to fill the slot, so edges get cut off — avoid this for full prints.';
+    }
   }
 
-  function renderSummary(){
-    const total = Math.ceil(state.photos.length / state.layout) || 0;
-    summaryEl.textContent = `${state.photos.length} photo${state.photos.length !== 1 ? 's' : ''} • ${total} sheet${total !== 1 ? 's' : ''}`;
-    printBtn.disabled = state.photos.length === 0;
-  }
+  $('#presetChips').addEventListener('click', e => {
+    const b = e.target.closest('.chip'); if (!b) return;
+    $$('#presetChips .chip').forEach(x => x.classList.toggle('on', x === b));
+    if (b.dataset.n === 'custom'){ state.custom = true; $('#customGrid').hidden = false; }
+    else { state.custom = false; state.preset = +b.dataset.n; $('#customGrid').hidden = true; }
+    render();
+  });
 
-  function renderAll(){ renderThumbs(); renderSheets(); renderNav(); renderSummary(); }
-
-  fileInput.addEventListener('change', e => { handleFiles(e.target.files); fileInput.value=''; });
-
-  document.querySelectorAll('.layout-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      state.layout = parseInt(btn.dataset.count, 10);
-      state.currentSheet = 0;
-      renderAll();
+  $$('.stepper').forEach(st => {
+    st.addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      const inp = st.querySelector('input');
+      inp.value = Math.min(+inp.max, Math.max(+inp.min, (+inp.value || 0) + +b.dataset.step));
+      inp.dispatchEvent(new Event('input', { bubbles:true }));
     });
   });
 
-  document.querySelectorAll('#colorToggle button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#colorToggle button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      state.bw = btn.dataset.mode === 'bw';
-      document.body.classList.toggle('bw-mode', state.bw);
+  function bindNum(sel, key, min, max, extra){
+    $(sel).addEventListener('input', e => {
+      let v = parseFloat(e.target.value); if (Number.isNaN(v)) return;
+      state[key] = Math.min(max, Math.max(min, v));
+      extra && extra(); render();
     });
+  }
+  bindNum('#colsN', 'cols',  1, 10);
+  bindNum('#rowsN', 'rows',  1, 12);
+  bindNum('#cw',  'sizeW', 10, 420, () => { state.size = 'custom'; $('#sizeSel').value = 'custom'; });
+  bindNum('#chh', 'sizeH', 10, 420, () => { state.size = 'custom'; $('#sizeSel').value = 'custom'; });
+
+  $('#sizeSel').addEventListener('change', e => {
+    state.size = e.target.value;
+    $('#customSize').hidden = state.size !== 'custom';
+    render();
+  });
+  $('#paperSel').addEventListener('change', e => { state.paper = e.target.value; render(); });
+
+  $('#marginR').addEventListener('input', e => { state.margin = +e.target.value; $('#marginOut').textContent = state.margin + ' mm'; render(); });
+  $('#gapR').addEventListener('input',    e => { state.gap    = +e.target.value; $('#gapOut').textContent    = state.gap    + ' mm'; render(); });
+  $('#guidesT').addEventListener('change', e => { state.guides = e.target.checked; render(); });
+
+  $('#printBtn').addEventListener('click', () => {
+    if (!state.images.length){ toast('Add some photos first'); return; }
+    window.print();
   });
 
-  printBtn.addEventListener('click', () => window.print());
+  /* keep preview + @page fresh */
+  window.addEventListener('beforeprint', renderPages);
+  let rzT; window.addEventListener('resize', () => { clearTimeout(rzT); rzT = setTimeout(renderPages, 120); });
 
-  ['dragenter','dragover'].forEach(evt => document.body.addEventListener(evt, e => { e.preventDefault(); lightTable.classList.add('drag-over'); }));
-  ['dragleave','drop'].forEach(evt => document.body.addEventListener(evt, e => { e.preventDefault(); lightTable.classList.remove('drag-over'); }));
-  document.body.addEventListener('drop', e => { if(e.dataTransfer.files.length) handleFiles(e.dataTransfer.files); });
+  /* ---------- go ---------- */
+  fitNote();
+  render();
 </script>
 </body>
 </html>
